@@ -1,0 +1,28 @@
+services:
+  api-auth: 
+    build: ./api-auth
+    ports:
+      -3501:3501
+  api-test: 
+    build: ./api-test
+    ports:
+      -3502:3502
+  api-static: 
+    build: ./api-static
+    ports:
+      -3503:3503
+  gateway: 
+    build: ./gateway
+    ports:
+      -3500:3500
+  vue-client: 
+    build: ./vue-client
+    ports:
+      -8080:8080
+  rabbitmq:
+    image: 'rabbitmq:latest'
+    ports:
+      -5672:5672
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
