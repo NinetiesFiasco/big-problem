@@ -1,0 +1,15 @@
+[submodule "api-test"]
+	path = api-test
+	url = https://github.com/NinetiesFiasco/api-test.git
+[submodule "api-auth"]
+	path = api-auth
+	url = https://github.com/NinetiesFiasco/api-auth.git
+[submodule "api-static"]
+	path = api-static
+	url = https://github.com/NinetiesFiasco/api-static.git
+[submodule "gateway"]
+	path = gateway
+	url = https://github.com/NinetiesFiasco/gateway.git
+[submodule "vue-client"]
+	path = vue-client
+	url = https://github.com/NinetiesFiasco/vue-client.git
