@@ -1,28 +1,91 @@
+version: '3'
 services:
   api-auth: 
     build: ./api-auth
+    container_name: api-auth
     ports:
-      -3501:3501
+      - 3501:3501
+    volumes:
+      - ./api-auth:/app/api-auth
+      - /app/api-auth/node_modules
+    environment:
+      - PORT=3501
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
   api-test: 
     build: ./api-test
+    container_name: api-test
     ports:
-      -3502:3502
+      - 3502:3502
+    volumes:
+      - ./api-test:/app/api-test
+      - /app/api-test/node_modules
+    environment:
+      - PORT=3502
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
   api-static: 
     build: ./api-static
+    container_name: api-static
     ports:
-      -3503:3503
+      - 3503:3503
+    volumes:
+      - ./api-static:/app/api-static
+      - /app/api-static/node_modules
+    environment:
+      - PORT=3503
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
   gateway: 
     build: ./gateway
+    container_name: gateway
     ports:
-      -3500:3500
+      - 3500:3500
+    volumes:
+      - ./gateway:/app/gateway
+      - /app/gateway/node_modules
+    environment:
+      - PORT=3500
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
   vue-client: 
     build: ./vue-client
+    container_name: vue-client
     ports:
-      -8080:8080
+      - 8080:8080
+    volumes:
+      - ./vue-client:/app/vue-client
+      - /app/vue-client/node_modules
+    environment:
+      - PORT=8080
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+        
   rabbitmq:
-    image: 'rabbitmq:latest'
+    build: './rabbitmq'
+    container_name: rabbitmq
     ports:
-      -5672:5672
+      - 5672:5672
+      - 15672:15672
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:15672"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+volumes:
+  rabbitmq-data:
