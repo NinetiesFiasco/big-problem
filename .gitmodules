@@ -13,3 +13,6 @@
 [submodule "vue-client"]
 	path = vue-client
 	url = https://github.com/NinetiesFiasco/vue-client.git
+[submodule "api-users"]
+	path = api-users
+	url = https://github.com/NinetiesFiasco/api-users.git

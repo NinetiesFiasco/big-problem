@@ -1,74 +1,129 @@
 version: '3'
 services:
   api-auth: 
-    build: ./api-auth
+    build: 
+      context: ./api-auth
+      dockerfile: Dockerfile
+      args:
+        EXPOSED_PORT: ${API_AUTH_PORT}
+        NODE_ENV: ${NODE_ENV}
     container_name: api-auth
     ports:
-      - 3501:3501
+      - ${API_AUTH_PORT}:${API_AUTH_PORT}
     volumes:
       - ./api-auth:/app/api-auth
       - /app/api-auth/node_modules
     environment:
-      - PORT=3501
+      PORT: ${API_AUTH_PORT}
+      NODE_ENV: ${NODE_ENV}
+      BIG_PROBLEM_EMAIL: ${BIG_PROBLEM_EMAIL}
+      GMAIL_CLIENT_ID: ${GMAIL_CLIENT_ID}
+      GMAIL_CLIENT_SECRET: ${GMAIL_CLIENT_SECRET}
+      GMAIL_REFRESH_TOKEN: ${GMAIL_REFRESH_TOKEN}
+      GMAIL_REDIRECT_URL: ${GMAIL_REDIRECT_URL}
+      GMAIL_TEST_TO: ${GMAIL_TEST_TO}
+      MONGO_URL: ${MONGO_URL}
+      MONGO_USER: ${MONGO_USER}
+      MONGO_PASSWORD: ${MONGO_PASSWORD}
     depends_on:
-      rabbitmq:
-        condition: service_healthy
+      - mongo
+  api-users: 
+    build: 
+      context: ./api-users
+      dockerfile: Dockerfile
+      args:
+        EXPOSED_PORT: ${API_USERS_PORT}
+        NODE_ENV: ${NODE_ENV}
+    container_name: api-users
+    ports:
+      - ${API_USERS_PORT}:${API_USERS_PORT}
+    volumes:
+      - ./api-users:/app/api-users
+      - /app/api-users/node_modules
+    environment:
+      PORT: ${API_USERS_PORT}
+      NODE_ENV: ${NODE_ENV}
+      MONGO_URL: ${MONGO_URL}
+      MONGO_USER: ${MONGO_USER}
+      MONGO_PASSWORD: ${MONGO_PASSWORD}
+    depends_on:
+      - mongo
 
   api-test: 
-    build: ./api-test
+    build: 
+      context: ./api-test
+      dockerfile: Dockerfile
+      args:
+        EXPOSED_PORT: ${API_TEST_PORT}
+        NODE_ENV: ${NODE_ENV}
     container_name: api-test
     ports:
-      - 3502:3502
+      - ${API_TEST_PORT}:${API_TEST_PORT}
     volumes:
       - ./api-test:/app/api-test
       - /app/api-test/node_modules
     environment:
-      - PORT=3502
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
+      PORT: ${API_TEST_PORT}
+      NODE_ENV: ${NODE_ENV}
 
   api-static: 
-    build: ./api-static
+    build:
+      context: ./api-static
+      dockerfile: Dockerfile
+      args:
+        EXPOSED_PORT: ${API_STATIC_PORT}
+        NODE_ENV: ${NODE_ENV}
     container_name: api-static
     ports:
-      - 3503:3503
+      - ${API_STATIC_PORT}:${API_STATIC_PORT}
     volumes:
       - ./api-static:/app/api-static
       - /app/api-static/node_modules
+      - dist-volume:/app/api-static/dist
     environment:
-      - PORT=3503
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
+      PORT: ${API_STATIC_PORT}
+      NODE_ENV: ${NODE_ENV}
 
   gateway: 
-    build: ./gateway
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+      args:
+        EXPOSED_PORT: ${GATEWAY_PORT}
+        NODE_ENV: ${NODE_ENV}
     container_name: gateway
     ports:
-      - 3500:3500
+      - ${GATEWAY_PORT}:${GATEWAY_PORT}
     volumes:
       - ./gateway:/app/gateway
       - /app/gateway/node_modules
     environment:
-      - PORT=3500
+      PORT: ${GATEWAY_PORT}
+      NODE_ENV: ${NODE_ENV}
+      API_STATIC_PORT: ${API_STATIC_PORT}
+      API_TEST_PORT: ${API_TEST_PORT}
+      API_AUTH_PORT: ${API_AUTH_PORT}
+      API_USERS_PORT: ${API_USERS_PORT}
     depends_on:
-      rabbitmq:
-        condition: service_healthy
+      - mongo
 
   vue-client: 
-    build: ./vue-client
+    build:
+      context: ./vue-client
+      dockerfile: Dockerfile
+      args:
+        EXPOSED_PORT: ${VUE_CLIENT_DEV_PORT}
+        NODE_ENV: ${NODE_ENV}
     container_name: vue-client
     ports:
-      - 8080:8080
+      - ${VUE_CLIENT_DEV_PORT}:${VUE_CLIENT_DEV_PORT}
     volumes:
       - ./vue-client:/app/vue-client
       - /app/vue-client/node_modules
+      - dist-volume:/app/vue-client/dist
     environment:
-      - PORT=8080
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
+      PORT: ${VUE_CLIENT_DEV_PORT}
+      NODE_ENV: ${NODE_ENV}
         
   rabbitmq:
     build: './rabbitmq'
@@ -77,8 +132,8 @@ services:
       - 5672:5672
       - 15672:15672
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     healthcheck:
@@ -87,5 +142,22 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: on-failure:5
+    volumes:
+      - mongo-data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}  
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+      MONGO_USER: ${MONGO_USER}
+      MONGO_PASSWORD: ${MONGO_PASSWORD}
+
 volumes:
   rabbitmq-data:
+  mongo-data:
+  dist-volume:
