@@ -15,6 +15,7 @@ services:
       - /app/api-auth/node_modules
     environment:
       PORT: ${API_AUTH_PORT}
+      GATEWAY_PORT: ${GATEWAY_PORT}
       NODE_ENV: ${NODE_ENV}
       BIG_PROBLEM_EMAIL: ${BIG_PROBLEM_EMAIL}
       GMAIL_CLIENT_ID: ${GMAIL_CLIENT_ID}
@@ -25,6 +26,25 @@ services:
       MONGO_URL: ${MONGO_URL}
       MONGO_USER: ${MONGO_USER}
       MONGO_PASSWORD: ${MONGO_PASSWORD}
+    depends_on:
+      - mongo
+  api-crud: 
+    build: 
+      context: ./api/crud
+      dockerfile: Dockerfile
+      args:
+        EXPOSED_PORT: ${API_CRUD_PORT}
+        NODE_ENV: ${NODE_ENV}
+    container_name: api-crud
+    ports:
+      - ${API_CRUD_PORT}:${API_CRUD_PORT}
+    volumes:
+      - ./api/crud:/app/api/crud
+      - /app/api/crud/node_modules
+    environment:
+      PORT: ${API_CRUD_PORT}
+      GATEWAY_PORT: ${GATEWAY_PORT}
+      NODE_ENV: ${NODE_ENV}
     depends_on:
       - mongo
   api-users: 
