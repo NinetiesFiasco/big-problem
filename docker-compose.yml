@@ -1,20 +1,20 @@
 version: '3'
 services:
-  api-auth: 
+  api-main: 
     build: 
-      context: ./api-auth
+      context: ./api/main
       dockerfile: Dockerfile
       args:
-        EXPOSED_PORT: ${API_AUTH_PORT}
+        EXPOSED_PORT: ${API_MAIN_PORT}
         NODE_ENV: ${NODE_ENV}
-    container_name: api-auth
+    container_name: api-main
     ports:
-      - ${API_AUTH_PORT}:${API_AUTH_PORT}
+      - ${API_MAIN_PORT}:${API_MAIN_PORT}
     volumes:
-      - ./api-auth:/app/api-auth
-      - /app/api-auth/node_modules
+      - ./api/main:/app
+      - /app/node_modules
     environment:
-      PORT: ${API_AUTH_PORT}
+      PORT: ${API_MAIN_PORT}
       GATEWAY_PORT: ${GATEWAY_PORT}
       NODE_ENV: ${NODE_ENV}
       BIG_PROBLEM_EMAIL: ${BIG_PROBLEM_EMAIL}
@@ -39,8 +39,8 @@ services:
     ports:
       - ${API_CRUD_PORT}:${API_CRUD_PORT}
     volumes:
-      - ./api/crud:/app/api/crud
-      - /app/api/crud/node_modules
+      - ./api/crud:/app
+      - /app/node_modules
     environment:
       PORT: ${API_CRUD_PORT}
       GATEWAY_PORT: ${GATEWAY_PORT}
@@ -49,7 +49,7 @@ services:
       - mongo
   api-users: 
     build: 
-      context: ./api-users
+      context: ./api/users
       dockerfile: Dockerfile
       args:
         EXPOSED_PORT: ${API_USERS_PORT}
@@ -58,8 +58,8 @@ services:
     ports:
       - ${API_USERS_PORT}:${API_USERS_PORT}
     volumes:
-      - ./api-users:/app/api-users
-      - /app/api-users/node_modules
+      - ./api/users:/app
+      - /app/node_modules
     environment:
       PORT: ${API_USERS_PORT}
       NODE_ENV: ${NODE_ENV}
@@ -68,10 +68,9 @@ services:
       MONGO_PASSWORD: ${MONGO_PASSWORD}
     depends_on:
       - mongo
-
   api-test: 
     build: 
-      context: ./api-test
+      context: ./api/test
       dockerfile: Dockerfile
       args:
         EXPOSED_PORT: ${API_TEST_PORT}
@@ -80,15 +79,14 @@ services:
     ports:
       - ${API_TEST_PORT}:${API_TEST_PORT}
     volumes:
-      - ./api-test:/app/api-test
-      - /app/api-test/node_modules
+      - ./api/test:/app
+      - /app/node_modules
     environment:
       PORT: ${API_TEST_PORT}
       NODE_ENV: ${NODE_ENV}
-
   api-static: 
     build:
-      context: ./api-static
+      context: ./api/static
       dockerfile: Dockerfile
       args:
         EXPOSED_PORT: ${API_STATIC_PORT}
@@ -97,13 +95,12 @@ services:
     ports:
       - ${API_STATIC_PORT}:${API_STATIC_PORT}
     volumes:
-      - ./api-static:/app/api-static
-      - /app/api-static/node_modules
-      - dist-volume:/app/api-static/dist
+      - ./api/static:/app
+      - /app/node_modules
+      - dist-volume:/app/dist
     environment:
       PORT: ${API_STATIC_PORT}
       NODE_ENV: ${NODE_ENV}
-
   gateway: 
     build:
       context: ./gateway
@@ -115,18 +112,18 @@ services:
     ports:
       - ${GATEWAY_PORT}:${GATEWAY_PORT}
     volumes:
-      - ./gateway:/app/gateway
-      - /app/gateway/node_modules
+      - ./gateway:/app
+      - /app/node_modules
     environment:
       PORT: ${GATEWAY_PORT}
       NODE_ENV: ${NODE_ENV}
       API_STATIC_PORT: ${API_STATIC_PORT}
       API_TEST_PORT: ${API_TEST_PORT}
-      API_AUTH_PORT: ${API_AUTH_PORT}
+      API_MAIN_PORT: ${API_MAIN_PORT}
       API_USERS_PORT: ${API_USERS_PORT}
+      API_CRUD_PORT: ${API_CRUD_PORT}
     depends_on:
       - mongo
-
   vue-client: 
     build:
       context: ./vue-client
@@ -138,12 +135,13 @@ services:
     ports:
       - ${VUE_CLIENT_DEV_PORT}:${VUE_CLIENT_DEV_PORT}
     volumes:
-      - ./vue-client:/app/vue-client
-      - /app/vue-client/node_modules
-      - dist-volume:/app/vue-client/dist
+      - ./vue-client:/app
+      - /app/node_modules
+      - dist-volume:/app/dist
     environment:
       PORT: ${VUE_CLIENT_DEV_PORT}
       NODE_ENV: ${NODE_ENV}
+      GATEWAY_PORT: ${GATEWAY_PORT}
         
   rabbitmq:
     build: './rabbitmq'

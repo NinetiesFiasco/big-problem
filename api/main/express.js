@@ -10,31 +10,30 @@ const PORT = process.env.PORT || 3501
 const GATEWAY_URL = `http://gateway:${process.env.GATEWAY_PORT}`
 
 app.get('/', (req, res) => {
-  console.log(req.headers)
-  res.send(`Hello World! Express 1 ${process.env.NODE_ENV}`)
+  res.json({res: `Hello World! Express 1 ${process.env.NODE_ENV}`})
 })
 
 app.get('/mongo', async (req, res) => {
   const responsik = await addUser()
-  res.send(responsik) 
+  res.json({res: responsik}) 
 })
 
 app.get('/mail', async (req, res) => {
   const message = await send()
-  res.send(message)
+  res.json({res: message})
 })
 
 app.get('/axios', async (req, res) => {
   const response = await axios.get(`${GATEWAY_URL}/express2/axios`)
-  res.send(`Let's work Express 1 + ${response.data} - worked!`)
+  res.json({res: `Let's work Express 1 + ${response.data} - worked!`})
 })
 
 app.get('/rabbit', async (req, res) => {
   try {
     const message = await rpcClient('Express 1 msg')
-    res.status(200).send(message)
+    res.status(200).json({res: message})
   } catch (err) {
-    res.status(500).send(err)
+    res.status(500).json({res: err})
   }
 })
 

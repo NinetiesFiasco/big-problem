@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 3502
 
 app.get('/', (req, res) => {
   try {
-    res.send('Hello World! Express 2')
+    res.json({res: 'Hello World! Express 2'})
   } catch (err) {
     res.status(500).send(err)
   }
@@ -14,7 +14,7 @@ app.get('/', (req, res) => {
 
 app.get('/axios', (req, res) => {
   try {
-    res.send('Express 2 answer on axios')
+    res.json({res: 'Express 2 answer on axios'})
   } catch (err) {
     res.status(500).send(err)
   }
