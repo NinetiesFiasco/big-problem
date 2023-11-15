@@ -45,6 +45,9 @@ services:
       PORT: ${API_CRUD_PORT}
       GATEWAY_PORT: ${GATEWAY_PORT}
       NODE_ENV: ${NODE_ENV}
+      MONGO_URL: ${MONGO_URL}
+      MONGO_USER: ${MONGO_USER}
+      MONGO_PASSWORD: ${MONGO_PASSWORD}
     depends_on:
       - mongo
   api-users: 
