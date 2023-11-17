@@ -3,7 +3,6 @@ services:
   mongo-express:
     image: mongo-express
     container_name: mongo-express
-    restart: on-failure:5
     ports:
       - ${MONGO_EXPRESS_PORT}:8081
     environment:
